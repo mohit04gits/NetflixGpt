@@ -1,84 +1,57 @@
-// import { useSelector } from "react-redux";
-// import lang from "../utils/languageConstants";
-// import { useRef } from "react";
-// import openai from "../utils/openai";
-
-// const GptSearchBar = () => {
-//   const langKey = useSelector((store) => store.config.lang);
-//   const searchText = useRef(null);
-
-//   const gptQuery = "Act as a Movie Recommendadtion system and suggest some movies for the query" + searchText.current.value + " only give me names of 5 movies,comma seperated like the example given ahead> Example Result:Gadar,Sholay,Don,Koio Mil Gaya,Golmaal";
-
-//   const handleGptSearchClick = async () => {
-//     // Make it async
-//     if (!searchText.current) return;
-//     console.log(searchText.current.value);
-//     const gptResults = await openai.chat.completions.create({
-//       model: "gpt-3.5-turbo",
-//       messages: [
-//         { role: "user", content: gptQuery },
-//       ],
-//     });
-//     console.log(gptResults.choices); // You probably want to see the result too
-//   };
-
-//   return (
-//     <div className="pt-[10%] flex justify-center">
-//       <form
-//         onSubmit={(e) => e.preventDefault()}
-//         className="w-1/2 bg-black grid grid-cols-12"
-//       >
-//         <input
-//           ref={searchText}
-//           type="text"
-//           className="p-4 m-4 col-span-9"
-//           placeholder={lang[langKey].gptSearchPlaceholder}
-//         />
-//         <button
-//           onClick={handleGptSearchClick}
-//           className="col-span-3 m-4 py-2 px-4 bg-red-700 text-white rounded-lg"
-//         >
-//           {lang[langKey].search}
-//         </button>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default GptSearchBar;
-
 import { useDispatch, useSelector } from "react-redux";
 import lang from "../utils/languageConstants";
 import { useRef } from "react";
 import axios from "axios";
-import { API_OPTIONS, OPEN_AI_KEY } from "../utils/constants";
+import { API_OPTIONS, OPENAI_KEY } from "../utils/constants";
 import { addMovieResult } from "../utils/gptSlice";
 
 const GptSearchBar = () => {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const langKey = useSelector((store) => store.config.lang);
   const searchText = useRef(null);
 
-  //search movie in TMDB
   const searchMovieTMDB = async (movie) => {
-    const data = await fetch(
-      "https://api.themoviedb.org/3/search/movie?query=" +
-        movie +
-        "&include_adult=false&language=en-US&page=1",
-      API_OPTIONS
-    );
-    const json = await data.json();
+    try {
+      // Check if TMDB API key is available
+      if (!process.env.REACT_APP_TMDB_KEY) {
+        console.error("❌ TMDB API key not found. Please add REACT_APP_TMDB_KEY to your .env file");
+        return [];
+      }
 
-    return json.results;
+      const response = await fetch(
+        `https://api.themoviedb.org/3/search/movie?query=${movie}&include_adult=false&language=en-US&page=1`,
+        API_OPTIONS
+      );
+      
+      if (!response.ok) {
+        throw new Error(`TMDB API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.results || [];
+    } catch (error) {
+      console.error(`❌ Error searching movie "${movie}":`, error.message);
+      return [];
+    }
   };
 
   const handleGptSearchClick = async () => {
-    const prompt =
-      "Act as a Movie Recommendation system and suggest some movies for the query: " +
-      searchText.current.value +
-      ". Only give me names of 5 movies, comma separated.no introduction just want movie Example: Gadar, Sholay, Don, Koi Mil Gaya, Golmaal.";
+    if (!searchText.current?.value) {
+      console.warn("⚠️ Please enter a search query");
+      return;
+    }
+
+    // Check if OpenAI/Groq API key is available
+    if (!OPENAI_KEY) {
+      console.error("❌ OpenAI/Groq API key not found. Please add REACT_APP_OPENAI_KEY to your .env file");
+      return;
+    }
+
+    const prompt = `Act as a Movie Recommendation system and suggest some movies for the query: "${searchText.current.value}". Only give me names of 5 movies, comma separated. No introduction. Example: Gadar, Sholay, Don, Koi Mil Gaya, Golmaal.`;
 
     try {
+      console.log("🔍 Searching for movies...");
+      
       const response = await axios.post(
         "https://api.groq.com/openai/v1/chat/completions",
         {
@@ -87,54 +60,61 @@ const GptSearchBar = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${OPEN_AI_KEY}`,
+            Authorization: `Bearer ${OPENAI_KEY}`,
             "Content-Type": "application/json",
           },
         }
       );
 
       const choices = response.data?.choices;
-
       if (!choices || choices.length === 0) {
-        console.error("No choices found from Groq API");
+        console.error("❌ No movie suggestions returned by Groq.");
         return;
       }
-
-      console.log(choices[0].message.content);
 
       const gptMovies = choices[0].message.content
         .split(",")
         .map((movie) => movie.trim());
 
-      // Now search each movie on TMDB
-      const promiseArray = gptMovies.map((movie) => searchMovieTMDB(movie));
-      const tmdbResults = await Promise.all(promiseArray);
-      console.log(tmdbResults);
+      console.log("🎬 Suggested movies:", gptMovies);
 
-      dispatch(addMovieResult({movieNames: gptMovies, movieResults:tmdbResults  }))
+      const movieSearchResults = await Promise.all(
+        gptMovies.map(searchMovieTMDB)
+      );
+
+      dispatch(
+        addMovieResult({
+          movieNames: gptMovies,
+          movieResults: movieSearchResults,
+        })
+      );
       
+      console.log("✅ Movie search completed successfully");
     } catch (error) {
-      console.error("Groq API Error:", error.response?.data || error.message);
+      console.error("❌ Groq API Error:", error.response?.data || error.message);
+      if (error.response?.status === 401) {
+        console.error("💡 Check your OpenAI/Groq API key");
+      }
     }
   };
 
   return (
-    <div className="pt-[10%]  flex justify-center">
+    <div className="pt-32 sm:pt-40 md:pt-48 lg:pt-56 px-4 sm:px-6 lg:px-8 flex justify-center">
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="w-1/2 bg-black grid grid-cols-12"
+        className="w-full max-w-2xl bg-black rounded-lg p-4 sm:p-6 flex flex-col sm:flex-row gap-4 shadow-2xl"
       >
         <input
           ref={searchText}
           type="text"
-          className="p-4 m-4 col-span-9"
-          placeholder={lang[langKey].gptSearchPlaceholder}
+          className="flex-1 p-3 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm sm:text-base"
+          placeholder={lang[langKey]?.gptSearchPlaceholder || "What would you like to watch?"}
         />
         <button
           onClick={handleGptSearchClick}
-          className="col-span-3 m-4 py-2 px-4 bg-red-700 text-white rounded-lg"
+          className="py-3 px-6 bg-red-700 text-white rounded-lg hover:bg-red-600 transition duration-200 font-semibold focus:outline-none focus:ring-2 focus:ring-red-500"
         >
-          {lang[langKey].search}
+          {lang[langKey]?.search || "Search"}
         </button>
       </form>
     </div>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Netflix Gpt
 
 -create react app
@@ -23,3 +24,6 @@
 -Netflix gpt
     -SEARCH BAR
     -MOVIE SUGGESTIONS      
+=======
+# netflixGpt
+>>>>>>> edbc94797d1fab053b4d7c7087478f72a22b4371

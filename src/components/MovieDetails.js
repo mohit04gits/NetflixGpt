@@ -18,8 +18,8 @@ const MovieDetails = () => {
 
   if (!movie) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-200">
-        <div className="text-2xl font-semibold text-gray-700">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4 sm:px-6 lg:px-8">
+        <div className="text-lg sm:text-xl md:text-2xl font-semibold text-white text-center">
           Movie not found!
         </div>
       </div>
@@ -27,35 +27,56 @@ const MovieDetails = () => {
   }
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 p-8">
-      {/* Poster */}
+    <div className="min-h-screen bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 pt-16 sm:pt-20 md:pt-24">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        <div className="flex flex-col lg:flex-row items-start justify-center gap-6 sm:gap-8 lg:gap-12">
+          {/* Poster */}
+          <div className="w-full lg:w-1/2 flex justify-center lg:justify-start">
+            <div className="relative">
+              <img
+                src={IMG_CDN_URL + movie.poster_path}
+                alt={movie.original_title}
+                className="rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg sm:shadow-xl lg:shadow-2xl max-w-full h-auto w-auto max-h-[80vh]"
+              />
+            </div>
+          </div>
 
-      <div className="w-full md:w-1/2 flex justify-center">
-        <img
-          src={IMG_CDN_URL + movie.poster_path}
-          alt={movie.original_title}
-          className="rounded-2xl shadow-2xl w-80 md:w-96 object-cover"
-        />
-      </div>
+          {/* Details */}
+          <div className="w-full lg:w-1/2 text-white space-y-4 sm:space-y-6 lg:space-y-8">
+            <div className="text-center lg:text-left">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 lg:mb-6 leading-tight">
+                {movie.title}
+              </h1>
+              
+              <div className="flex items-center justify-center lg:justify-start gap-2 mb-4 sm:mb-6 lg:mb-8">
+                <span className="text-yellow-400 text-lg sm:text-xl md:text-2xl">⭐</span>
+                <span className="text-lg sm:text-xl md:text-2xl font-semibold text-yellow-400">
+                  {movie.vote_average}/10
+                </span>
+              </div>
+            </div>
 
-      {/* Details */}
-      <div className="w-full md:w-1/2 mt-8 md:mt-0 md:pl-12 text-white">
-        <h1 className="text-4xl font-bold mb-4">{movie.title}</h1>
-        <p className="text-xl text-yellow-400 mb-6">
-          ⭐ {movie.vote_average}/10
-        </p>
-        <p className="text-lg text-gray-300">{movie.overview}</p>
+            <div className="text-center lg:text-left">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-300 leading-relaxed max-w-4xl">
+                {movie.overview}
+              </p>
+            </div>
 
-        {/* Extra info (optional) */}
-        <div className="mt-6">
-          {/* <Link to={`trailer/${id}`}> */}
-          <Link to={`/browse/movietrailer/${movie.id}`}>
-            <button className="px-6 py-3 bg-red-600 hover:bg-red-700 transition rounded-full text-lg font-semibold">
-              Watch Trailer
-            </button>
-          </Link>
-
-          {/* </Link> */}
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start pt-4 sm:pt-6">
+              <Link to={`/browse/movietrailer/${movie.id}`}>
+                <button className="px-6 sm:px-8 lg:px-10 py-3 sm:py-4 bg-red-600 hover:bg-red-700 transition-all duration-200 rounded-full text-sm sm:text-base md:text-lg font-semibold transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800 shadow-lg">
+                  🎬 Watch Trailer
+                </button>
+              </Link>
+              
+              <Link to="/browse">
+                <button className="px-6 sm:px-8 lg:px-10 py-3 sm:py-4 bg-gray-600 hover:bg-gray-700 transition-all duration-200 rounded-full text-sm sm:text-base md:text-lg font-semibold transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800 shadow-lg">
+                  ← Back to Browse
+                </button>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
       <Outlet />
@@ -64,3 +85,15 @@ const MovieDetails = () => {
 };
 
 export default MovieDetails;
+
+
+
+
+
+
+
+
+
+
+
+

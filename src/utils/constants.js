@@ -2,12 +2,18 @@ export const LOGO =
   "https://upload.wikimedia.org/wikipedia/commons/7/7a/Logonetflix.png";
 export const USER_AVATAR =
   "https://wallpapers.com/images/hd/netflix-profile-pictures-1000-x-1000-qo9h82134t9nv0j0.jpg";
+
+// Check if TMDB API key exists
+const TMDB_API_KEY = process.env.REACT_APP_TMDB_KEY;
+if (!TMDB_API_KEY) {
+  console.warn("⚠️ TMDB API key not found. Please add REACT_APP_TMDB_KEY to your .env file");
+}
+
 export const API_OPTIONS = {
   method: "GET",
   headers: {
     accept: "application/json",
-    Authorization:
-      "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyMmIwMTkyZDQ2OGQyNzNlNWM3ZTgwMWEwNGRjODAxNCIsIm5iZiI6MTc0NDAxNTkwMC4wNjIsInN1YiI6IjY3ZjM5MjFjZGRmOTE5NDM4N2Q5Nzc1NSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.1MEtGWcAjQWzIdEmy3a6_A4AmtOdkr2OJSWPxzXwgLA",
+    Authorization: TMDB_API_KEY ? `Bearer ${TMDB_API_KEY}` : "",
   },
 };
 
@@ -20,5 +26,15 @@ export const SUPPORTED_LANGUAGES = [
   { identifier: "spanish", name: "Spanish" },
 ];
 
-export const OPEN_AI_KEY =
-  "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"
+// Check if OpenAI/Groq API key exists
+const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_KEY;
+if (!OPENAI_API_KEY) {
+  console.warn("⚠️ OpenAI/Groq API key not found. Please add REACT_APP_OPENAI_KEY to your .env file");
+}
+
+export const OPENAI_KEY = OPENAI_API_KEY || "";
+
+// Log for debugging (remove in production)
+console.log("🔧 Environment Check:");
+console.log("TMDB Key:", TMDB_API_KEY ? "✅ Found" : "❌ Missing");
+console.log("OpenAI Key:", OPENAI_API_KEY ? "✅ Found" : "❌ Missing");
