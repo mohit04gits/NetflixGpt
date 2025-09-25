@@ -14,7 +14,9 @@ const GptSearchBar = () => {
     try {
       // Check if TMDB API key is available
       if (!process.env.REACT_APP_TMDB_KEY) {
-        console.error("❌ TMDB API key not found. Please add REACT_APP_TMDB_KEY to your .env file");
+        console.error(
+          "❌ TMDB API key not found. Please add REACT_APP_TMDB_KEY to your .env file"
+        );
         return [];
       }
 
@@ -22,11 +24,11 @@ const GptSearchBar = () => {
         `https://api.themoviedb.org/3/search/movie?query=${movie}&include_adult=false&language=en-US&page=1`,
         API_OPTIONS
       );
-      
+
       if (!response.ok) {
         throw new Error(`TMDB API error: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return data.results || [];
     } catch (error) {
@@ -43,7 +45,9 @@ const GptSearchBar = () => {
 
     // Check if OpenAI/Groq API key is available
     if (!OPENAI_KEY) {
-      console.error("❌ OpenAI/Groq API key not found. Please add REACT_APP_OPENAI_KEY to your .env file");
+      console.error(
+        "❌ OpenAI/Groq API key not found. Please add REACT_APP_OPENAI_KEY to your .env file"
+      );
       return;
     }
 
@@ -51,12 +55,13 @@ const GptSearchBar = () => {
 
     try {
       console.log("🔍 Searching for movies...");
-      
+
       const response = await axios.post(
         "https://api.groq.com/openai/v1/chat/completions",
         {
-          model: "llama3-70b-8192",
+          model: "llama-3.1-8b-instant",
           messages: [{ role: "user", content: prompt }],
+          max_tokens: 100,
         },
         {
           headers: {
@@ -88,10 +93,13 @@ const GptSearchBar = () => {
           movieResults: movieSearchResults,
         })
       );
-      
+
       console.log("✅ Movie search completed successfully");
     } catch (error) {
-      console.error("❌ Groq API Error:", error.response?.data || error.message);
+      console.error(
+        "❌ Groq API Error:",
+        error.response?.data || error.message
+      );
       if (error.response?.status === 401) {
         console.error("💡 Check your OpenAI/Groq API key");
       }
@@ -108,7 +116,10 @@ const GptSearchBar = () => {
           ref={searchText}
           type="text"
           className="flex-1 p-3 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm sm:text-base"
-          placeholder={lang[langKey]?.gptSearchPlaceholder || "What would you like to watch?"}
+          placeholder={
+            lang[langKey]?.gptSearchPlaceholder ||
+            "What would you like to watch?"
+          }
         />
         <button
           onClick={handleGptSearchClick}
