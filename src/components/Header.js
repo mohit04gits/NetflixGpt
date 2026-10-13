@@ -91,12 +91,6 @@
 
 // export default Header;
 
-
-
-
-
-
-
 import { useEffect } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -104,27 +98,21 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { auth } from "../utils/firebase";
 import { addUser, removeUser } from "../utils/appSlice";
-import {
-  LOGO,
-  SUPPORTED_LANGUAGES,
-  USER_AVATAR,
-} from "../utils/constants";
+import { LOGO, SUPPORTED_LANGUAGES, USER_AVATAR } from "../utils/constants";
 import { toggleGptSearchView } from "../utils/gptSlice";
 import { changeLanguage } from "../utils/configSlice";
 
 const Header = () => {
   const user = useSelector((store) => store.user);
-  const showGptSearch = useSelector(
-    (store) => store.gpt.showGptSearch
-  );
+  const showGptSearch = useSelector((store) => store.gpt.showGptSearch);
 
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
   const isComparePage = location.pathname === "/browse/compare";
-  const isBrowsePage = location.pathname === "/browse" ||
-    location.pathname === "/browse/";
+  const isBrowsePage =
+    location.pathname === "/browse" || location.pathname === "/browse/";
 
   const handleSignout = () => {
     signOut(auth).catch((error) => {
@@ -179,17 +167,16 @@ const Header = () => {
 
       <div className="relative mx-auto flex min-h-[76px] max-w-[1920px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-7 lg:px-12">
         {/* Brand */}
+
         <button
           type="button"
           onClick={handleHomeClick}
           aria-label="NetflixGPT home"
           className="group shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
         >
-          <img
-            src={LOGO}
-            alt="NetflixGPT"
-            className="w-28 object-contain transition duration-300 group-hover:scale-105 sm:w-32 md:w-36"
-          />
+          <p className="text-2xl font-extrabold tracking-tight text-red-600 transition duration-300 group-hover:scale-105 sm:text-3xl">
+            NetflixGPT
+          </p>
         </button>
 
         {user && (
@@ -247,10 +234,7 @@ const Header = () => {
                   className="max-w-[115px] cursor-pointer rounded-xl border border-white/10 bg-[#171717] px-2 py-2.5 text-xs text-white outline-none transition hover:border-red-500 focus:border-red-500 sm:max-w-none sm:px-3 sm:text-sm"
                 >
                   {SUPPORTED_LANGUAGES.map((lang) => (
-                    <option
-                      key={lang.identifier}
-                      value={lang.identifier}
-                    >
+                    <option key={lang.identifier} value={lang.identifier}>
                       {lang.name}
                     </option>
                   ))}
