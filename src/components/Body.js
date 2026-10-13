@@ -36,6 +36,7 @@ import Layout from "./Layout";
 import Browse from "./Browse";
 import MovieDetails from "./MovieDetails";
 import MovieTrailer from "./MovieTrailer";
+import CompareMovies from "./CompareMovies";
 
 const appRouter = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ const appRouter = createBrowserRouter([
       {
         path: "movietrailer/:id", // ✅ /browse/movietrailer/:id
         element: <MovieTrailer />,
+      },
+      {
+        path: "compare",
+        element: <CompareMovies />,
       },
     ],
   },
